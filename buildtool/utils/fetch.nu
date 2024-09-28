@@ -6,9 +6,9 @@ def any-suffix-match [
 	}
 }
 
-def file_ext [from: string] {
+def fix_file_ext [from: string] -> string {
 	if ($from | any-suffix-match ['.tar.gz', '.tgz']) {
-		'tgz'
+		return ($from | str replace 'tar.gz' 'tgz')
 	}
 }
 
@@ -16,13 +16,10 @@ export def fetch_distfile [distfile_url: string] {
 	let pkgname = get_state | get pkgname
 	let version = get_state | get version
 
-	let distfile_url = $distfile_url | url decode
-	let extension = file_ext $distfile_url
+	let fname = ($distfile_url | split row '/') | last
 
-	let outpath = $"($pkgname)-($version).($extension)"
-	print $outpath
+	let outpath = fix_file_ext $fname
 	mkdir ./work
 	cd ./work
-	^wget -O $"($pkgname)-($version).($extension)" $distfile_url
-	^tar -xvf $outpath
+	^wget -O $"($outpath)" $distfile_url
 }

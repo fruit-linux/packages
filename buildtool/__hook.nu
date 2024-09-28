@@ -2,17 +2,18 @@
 
 # Nushell interface for POSIX shell hook
 
-def configure [] {
+def do_fetch [] {
 	print 'Configuring...'
 }
 
-def load [env_dump: string] {
-	let a = $env_dump
-		| parse --regex `\s*(?P<key>[^=]*)=(?P<val>'[^']*'|[^\n]*)\n`
-		| each {|x| {$x.key: $x.val}}
-		| into record
+def "main env_dump_to_nuon" [env_dump: string] {
+	#print $"($env_dump)"
 
-	$a | to nuon
+	$env_dump
+		| parse --regex `\s*(?P<key>[^=]*)=(?P<val>('[^']*')|([^\n]*))`
+		| each {|x| {$x.key: ($x.val | str trim -c "'") }}
+		| into record
+		| to nuon
 }
 
 def get_state [] -> record {
@@ -25,17 +26,17 @@ use utils/ fetch
 
 def main [operation: string, ...args] {
 	match $operation {
-		load => {
-			load $args.0
-		},
 		pkg_path => {
 			return $"./srcpkgs/($args.0)/template"
+		},
+		pre_fetch | post_fetch => {
+		},
+		do_fetch => {
+			fetch fetch_distfile (get_state | get distfiles)
 		},
 		_ => {
 			let build_style = get_state
 				| get build_style
-
-			fetch fetch_distfile (get_state | get distfiles)
 
 			match $build_style {
 				gnu-configure => {

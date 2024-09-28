@@ -6,7 +6,7 @@ source "$(./buildtool/__hook.nu pkg_path "$1")"
 # Otherwise carry out the specified operations
 if [ $# -lt 2 ]; then
 	environment="$(set -o posix ; set)"
-	./buildtool/__hook.nu load "$environment"
+	./buildtool/__hook.nu env_dump_to_nuon "$environment"
 else
 	# Determine whether a function is defined
 	is_def() {

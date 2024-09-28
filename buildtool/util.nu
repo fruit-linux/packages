@@ -4,6 +4,17 @@ export def env-default [var: string, default: string] {
 		| default $default
 }
 
+export def get_raw_state [] -> record {
+	$env.__BASED_BUILDTOOL__
+		| from nuon
+}
+
+export def get_state [var: string] -> string {
+	get_raw_state
+		| get -i $var
+		| default ''
+}
+
 export def setup_pkg [
 	pkg: string
 	cross?: string

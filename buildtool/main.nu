@@ -5,8 +5,8 @@ def run [
 	operations: string
 ] {
 	let metadata: record = (^bash -c $"./buildtool/hook.sh ($package)") | from nuon
-	print $metadata
-	#let metadata = (^bash -c $"./buildtool/hook.sh ($package) ($operations)")
+
+	^bash -c $"__BASED_BUILDTOOL__='($metadata | to nuon)' ./buildtool/hook.sh ($package) ($operations)"
 }
 
 # Build tool for Based Linux
@@ -15,6 +15,9 @@ def main [
 	package: string   # Package to run the operation on
 ] {
 	let operations = match $operation {
+		fetch => {
+			"pre_fetch do_fetch post_fetch"
+		},
 		build => {
 			"pre_build do_build post_build"
 		},
