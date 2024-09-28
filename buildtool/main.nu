@@ -4,7 +4,9 @@ def run [
 	package: string
 	operations: string
 ] {
-	^bash -c $"./buildtool/hook.sh ($package) ($operations)"
+	let metadata: record = (^bash -c $"./buildtool/hook.sh ($package)") | from nuon
+	print $metadata
+	#let metadata = (^bash -c $"./buildtool/hook.sh ($package) ($operations)")
 }
 
 # Build tool for Based Linux

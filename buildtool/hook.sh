@@ -2,21 +2,24 @@
 
 source "$(./buildtool/__hook.nu pkg_path "$1")"
 
-environment="$(set -o posix ; set)"
-export __BASED_BUILDTOOL__="$(./buildtool/__hook.nu load "$environment")"
-
-# Determine whether a function is defined
-is_def() {
-	[[ $(type -t $1) = function ]]
-}
-
-# Define all the default function wrappers
-shift
-
-for op in $@; do
-	if is_def ${op}; then
-		${op}
-	else
-		__BASED_BUILDTOOL__="${__BASED_BUILDTOOL__}" ./buildtool/__hook.nu ${op}
-	fi
-done
+# If no operations were specified, load env vars
+# Otherwise carry out the specified operations
+if [ $# -lt 2 ]; then
+	environment="$(set -o posix ; set)"
+	./buildtool/__hook.nu load "$environment"
+else
+	# Determine whether a function is defined
+	is_def() {
+		[[ $(type -t $1) = function ]]
+	}
+	
+	shift
+	
+	for op in $@; do
+		if is_def ${op}; then
+			${op}
+		else
+			./buildtool/__hook.nu ${op}
+		fi
+	done
+fi

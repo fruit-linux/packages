@@ -8,14 +8,9 @@ def configure [] {
 
 def load [env_dump: string] {
 	let a = $env_dump
-		| split row "\n"
-		| parse '{key}={val}'
+		| parse --regex `\s*(?P<key>[^=]*)=(?P<val>'[^']*'|[^\n]*)\n`
 		| each {|x| {$x.key: $x.val}}
 		| into record
-	
-	#print $env_dump
-
-	#print $env[pkgname]
 
 	$a | to nuon
 }
