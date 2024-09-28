@@ -13,14 +13,19 @@ def load [env_dump: string] {
 		| each {|x| {$x.key: $x.val}}
 		| into record
 	
-	print $a.pkgname
-
 	#print $env_dump
 
 	#print $env[pkgname]
 
 	$a | to nuon
 }
+
+def get_state [] -> record {
+	$env.__BASED_BUILDTOOL__
+		| from nuon
+}
+
+use styles/ *
 
 def main [operation: string, ...args] {
 	match $operation {
@@ -31,14 +36,17 @@ def main [operation: string, ...args] {
 			return $"./srcpkgs/($args.0)/template"
 		},
 		_ => {
-			let build_style = $env.__BASED_BUILDTOOL__
-				| from nuon
+			let build_style = get_state
 				| get build_style
 
-			if $build_style == "gnu-configure" {
-				overlay use ./styles/configure.nu
+			match $build_style {
+				gnu-configure => {
+					gnu_configure build
+				},
+				cargo => {
+					cargo build
+				},
 			}
-			^$operation
 		},
 	}
 }
