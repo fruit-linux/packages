@@ -30,8 +30,15 @@ def main [operation: string, ...args] {
 		pkg_path => {
 			return $"./srcpkgs/($args.0)/template"
 		},
-		do_configure => {
-			configure
+		_ => {
+			let build_style = $env.__BASED_BUILDTOOL__
+				| from nuon
+				| get build_style
+
+			if $build_style == "gnu-configure" {
+				overlay use ./styles/configure.nu
+			}
+			^$operation
 		},
 	}
 }

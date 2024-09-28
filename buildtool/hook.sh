@@ -13,10 +13,10 @@ is_def() {
 # Define all the default function wrappers
 for op in build check configure extract fetch install patch setup; do
 	for prefix in pre "do" post; do
-		if ! is_def ${op}; then
+		if ! is_def ${prefix}_${op}; then
 			eval "
 			${prefix}_${op}() {
-				./buildtool/__hook.nu ${prefix}_${op}
+				__BASED_BUILDTOOL__=\"${__BASED_BUILDTOOL__}\" ./buildtool/__hook.nu ${prefix}_${op}
 			}
 			"
 		fi
