@@ -26,6 +26,7 @@ def get_state [] -> record {
 }
 
 use styles/ *
+use utils/ fetch
 
 def main [operation: string, ...args] {
 	match $operation {
@@ -39,11 +40,15 @@ def main [operation: string, ...args] {
 			let build_style = get_state
 				| get build_style
 
+			fetch fetch_distfile (get_state | get distfiles)
+
 			match $build_style {
 				gnu-configure => {
+					cd ./work
 					gnu_configure build
 				},
 				cargo => {
+					cd $"./work/(get_state | get pkgname)-(get_state | get version)/"
 					cargo build
 				},
 			}

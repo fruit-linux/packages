@@ -1,4 +1,7 @@
 export def env-default [var: string, default: string] {
+	$env
+		| get -i $var
+		| default $default
 }
 
 export def setup_pkg [

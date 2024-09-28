@@ -1,11 +1,15 @@
 use ../util.nu *
 
 export def build [] {
-	let make_cmd = env-default make_cmd 'cargo auditable'
+	let make_cmd = env-default make_cmd 'cargo'
 	let configure_args = env-default configure_args ''
 	
-	(^$make_cmd build --release --locked --target $env.RUST_TARGET
-		$env.configure_args $configure_args)
+	if (is-not-empty $configure_args) {
+		(^$make_cmd build --release --locked --target $env.RUST_TARGET
+			$configure_args)
+	} else {
+		^$make_cmd build --release --locked --target $env.RUST_TARGET
+	}
 }
 
 export def check [] {
