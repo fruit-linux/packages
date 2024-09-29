@@ -1,16 +1,21 @@
-def any-suffix-match [
-	suffixes: list<string>
-] {
-	$suffixes | any {|suffix|
-		$in | str ends-with $suffix
+def fix-file-ext [from_suffixes: list<string>, to_suffix: string] -> string {
+	let input: string = $in
+	for suffix in $from_suffixes {
+		if ($input | str ends-with $suffix) {
+			return ($input | str replace $suffix $to_suffix)
+		}
 	}
+	return $input
 }
 
-def fix_file_ext [from: string] -> string {
-	if ($from | any-suffix-match ['.tar.gz', '.tgz']) {
-		return ($from | str replace 'tar.gz' 'tgz')
-	}
+export def fix-file-exts [] -> string {
+	$in
+		| fix-file-ext ['tar.gz'] tgz
+		| fix-file-ext ['tar.bz2'] tbz
+		| fix-file-ext ['tar.xz', 'tar.lzma'] txz
+		| fix-file-ext ['tar.zst'] tzst
 }
+	
 
 export def fetch_distfile [distfile_url: string] {
 	let pkgname = get_state | get pkgname
@@ -18,8 +23,10 @@ export def fetch_distfile [distfile_url: string] {
 
 	let fname = ($distfile_url | split row '/') | last
 
-	let outpath = fix_file_ext $fname
+	let outpath = $fname | fix-file-exts
+
 	mkdir ./work
 	cd ./work
+	
 	^wget -O $"($outpath)" $distfile_url
 }

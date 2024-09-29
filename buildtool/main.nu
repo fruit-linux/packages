@@ -18,6 +18,9 @@ def main [
 		fetch => {
 			"pre_fetch do_fetch post_fetch"
 		},
+		extract => {
+			"pre_extract do_extract post_extract"
+		},
 		build => {
 			"pre_build do_build post_build"
 		},
@@ -26,6 +29,9 @@ def main [
 		},
 		package => {
 			"pre_package do_package post_package"
+		},
+		run => {
+			"pre_fetch do_fetch post_fetch pre_extract do_extract post_extract"
 		},
 	}
 

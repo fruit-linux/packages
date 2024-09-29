@@ -9,10 +9,10 @@ export def get_raw_state [] -> record {
 		| from nuon
 }
 
-export def get_state [var: string] -> string {
+export def get_state [var: string] -> string? {
 	get_raw_state
 		| get -i $var
-		| default ''
+		| default null
 }
 
 export def setup_pkg [

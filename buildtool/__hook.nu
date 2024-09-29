@@ -22,7 +22,7 @@ def get_state [] -> record {
 }
 
 use styles/ *
-use utils/ fetch
+use utils/ *
 
 def main [operation: string, ...args] {
 	match $operation {
@@ -33,6 +33,11 @@ def main [operation: string, ...args] {
 		},
 		do_fetch => {
 			fetch fetch_distfile (get_state | get distfiles)
+		},
+		pre_extract | post_extract => {
+		},
+		do_extract => {
+			extract extract_distfiles (get_state | get distfiles)
 		},
 		_ => {
 			let build_style = get_state

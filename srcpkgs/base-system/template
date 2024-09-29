@@ -3,10 +3,10 @@ pkgname=base-system
 version=0.114
 revision=2
 build_style=meta
-short_desc="Void Linux base system meta package"
+short_desc="Based Linux base system meta package"
 maintainer="Lincoln <lincoln@waterga.me>"
 license="Public Domain"
-homepage="https://www.voidlinux.org"
+homepage="https://github.com/based-linux"
 
 depends="
  base-files>=0.77 ncurses coreutils findutils diffutils libgcc
