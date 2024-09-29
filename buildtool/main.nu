@@ -9,7 +9,7 @@ def run [
 	^bash -c $"__BASED_BUILDTOOL__='($metadata | to nuon)' ./buildtool/hook.sh ($package) ($operations)"
 }
 
-# Build tool for Based Linux
+# Build tool for Fruit Linux
 def main [
 	operation: string # Operation to run
 	package: string   # Package to run the operation on

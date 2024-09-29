@@ -3,10 +3,10 @@
 # Compatibility script for FSG lsb_release v1.4 or newer
 #
 version="1.0"
-distributor_id="BasedLinux"
-description="Based Linux"
+distributor_id="FruitLinux"
+description="Fruit Linux"
 release="rolling"
-codename="based"
+codename="fruit"
 options=""
 short=0
 
