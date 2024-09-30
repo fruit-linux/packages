@@ -1,3 +1,13 @@
+# Base path for distfiles
+export const DISTFILES_DIR = '/home/lncn/Code/xbps-packages/xbps-packages/distfiles'
+# Base path for src
+export const SRC_DIR = '/home/lncn/Code/xbps-packages/xbps-packages/src'
+export const BUILD_DIR = '/home/lncn/Code/xbps-packages/xbps-packages/build'
+
+export def gen-distfile-path [archive: string] -> string {
+		$"($DISTFILES_DIR)/(get_state pkgname)-(get_state version)/($archive)"
+}
+
 export def env-default [var: string, default: string] {
 	$env
 		| get -i $var
@@ -27,7 +37,7 @@ export def setup_pkg [
 		$env.$v = null
 	}
 
-	#unset_package_funcs
+#unset_package_funcs
 
 	if (is-not-empty $cross) {
 	} else {

@@ -16,11 +16,7 @@ def "main env_dump_to_nuon" [env_dump: string] {
 		| to nuon
 }
 
-def get_state [] -> record {
-	$env.__BASED_BUILDTOOL__
-		| from nuon
-}
-
+use util.nu *
 use styles/ *
 use utils/ *
 
@@ -32,24 +28,35 @@ def main [operation: string, ...args] {
 		pre_fetch | post_fetch => {
 		},
 		do_fetch => {
-			fetch fetch_distfile (get_state | get distfiles)
+			fetch fetch_distfile (get_state distfiles)
 		},
 		pre_extract | post_extract => {
 		},
 		do_extract => {
-			extract extract_distfiles (get_state | get distfiles)
+			extract extract_distfiles (get_state distfiles)
 		},
-		_ => {
-			let build_style = get_state
-				| get build_style
-
-			match $build_style {
+		pre_configure | post_configure => {
+		},
+		do_configure => {
+			match (get_state build_style) {
 				gnu-configure => {
-					cd ./work
-					gnu_configure build
+					cd $"./src/(get_state pkgname)-(get_state version)/"
+					gnu-configure configure
 				},
 				cargo => {
-					cd $"./work/(get_state | get pkgname)-(get_state | get version)/"
+					cd $"./src/(get_state pkgname)-(get_state version)/"
+					cargo configure
+				},
+			}
+		},
+		_ => {
+			match (get_state build_style) {
+				gnu-configure => {
+					cd $"./src/(get_state pkgname)-(get_state version)/"
+					gnu-configure build
+				},
+				cargo => {
+					cd $"./src/(get_state pkgname)-(get_state version)/"
 					cargo build
 				},
 			}

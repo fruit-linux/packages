@@ -7,10 +7,8 @@ export def vextract [
 	--strip-components=strip_components: string,
 	archive: path,
 ] {
-	print $archive
-	let extension = ($"./work/($archive)" | path parse).extension
+	let extension = ($"($DISTFILES_DIR)/(get_state pkgname)-(get_state version)/($archive)" | path parse).extension
 	mut sc = '--strip-components=1'
-	mut dst = ''
 
 	if $no_strip_components {
 		$sc = ''
@@ -29,10 +27,10 @@ export def vextract [
 			if (is-not-empty $sc) {
 				$args += [$sc]
 			}
-			if (is-not-empty $dst) {
-				$args += [-C, $dst]
-			}
-			$args = $args | append [-x, --no-same-permissions, --no-same-owner, -f, $archive]
+			#if (is-not-empty $dest_dir) {
+			#$args = ($args | append ['-C', $dest_dir | default (pwd)])
+			#}
+			$args = ($args | append ['-C', ($dest_dir | default (pwd)), -x, --no-same-permissions, --no-same-owner, -f, $archive])
 
 			^$tar_cmd ...$args
 		},
@@ -47,20 +45,28 @@ export def vsrcextract [
 ] {
 	if $no_strip_components {
 		(vextract --no-strip-components -C $dest_dir
-			$"($env.XBPS_SRCDISTDIR)/(get_state pkgname)-(get_state version)/($archive)")
+			(gen-distfile-path $archive))
 	} else if (is-not-empty $strip_components) {
 		(vextract --strip-components=$strip_components -C $dest_dir
-			$"($env.XBPS_SRCDISTDIR)/(get_state pkgname)-(get_state version)/($archive)")
+			(gen-distfile-path $archive))
 	} else {
 		(vextract --strip-components=1 -C $dest_dir
-			$"($env.XBPS_SRCDISTDIR)/(get_state pkgname)-(get_state version)/($archive)")
+			(gen-distfile-path $archive))
 	}
 }
 
-export def extract_distfiles [distfiles: string] {
-	#let srcdir = $"./work/(get_state pkgname)-(get_state version)"
+export def vtar [...args] {
+	^bsdtar ...args
+}
 
-	#if (is-not-empty (get_state distfiles)) and (is-not-empty (get_state checksum)) {
+export def vsrccopy [...files: path, target: path] {
+	mut target = ''
+}
+
+export def extract_distfiles [distfiles: string] {
+	let src_dir = $"($DISTFILES_DIR)/(get_state pkgname)-(get_state version)"
+
+	#if (is-empty (get_state distfiles)) and (is-empty (get_state checksum)) {
 	#	mkdir ./work
 	#	return
 	#}
@@ -69,31 +75,34 @@ export def extract_distfiles [distfiles: string] {
 	#	return
 	#}
 
-	let wrksrc = './work'
+	let start_path = pwd
+	let wrksrc = $"($SRC_DIR)/(get_state pkgname)-(get_state version)"
 
 	mut extract_dir = ''
 	try {
-		$extract_dir = mktemp -d
+		$extract_dir = mktemp -d 'buildtool-XXXXXXX'
 	} catch {
-		make error { msg: 'could not create temp dir' }
+		#error make { msg: 'could not create temp dir' };
 		return
 	}
+
+	print $extract_dir
 
 	for distfile_url in ($distfiles | split row ' ') {
 		let fname = $distfile_url | split row '/'
 			| last
 			| fix-file-exts
 
-		vsrcextract --no-strip-components -C $extract_dir $"./work/($fname)"
+		vsrcextract --no-strip-components -C $extract_dir $"($fname)"
 	}
 
 	cd $extract_dir
 	
 	mut num_dirs: int = 0
-	for f in (ls -a) {
-		mut innerdir = ''
-
-		if ($f) or ($f) {
+	mut innerdir = ''
+	for f in (ls -a | where type == dir) {
+		print $f.name
+		match ($f).name {
 			. | .. => {
 			},
 			_ => {
@@ -101,39 +110,39 @@ export def extract_distfiles [distfiles: string] {
 				$num_dirs += 1
 			},
 		}
-
-		if ($num_dirs != 2) { #or ($create_wrksrc) {
-		} else if (^grep -q 'xmlns="http://pear[.]php[.]net/dtd/package' package.xml err> /dev/null) {
-			rm -f package.xml
-			for f in */ {
-				$innerdir = $f
-			}
-			$num_dirs = 1
-		} else {
-			for f in * {
-				if ($f | file exists) and ($"._($f)" | file exists) {
-					rm -f $"._($f)"
-					$num_dirs = 1
-					$innerdir = $f
-					break
-				}
-			}
-		}
-
-		rm -rf $wrksrc
-		$innerdir = $"($extract_dir)/($innerdir)"
-		cd $env.XBPS_BUILDDIR
-
-		try {
-			if ($num_dirs == 1) and (($innerdir | file type) == dir) { #and (is-empty $create_wrksrc) {
-				mv $innerdir $wrksrc
-				rmdir $extract_dir
-			} else {
-				mv $extract_dir $wrksrc
-			}
-} catch {
-			make error { msg: $'failed to move sources to ($wrksrc)' }
-			return
-		}
 	}
+
+	#if ($num_dirs != 2) { #or ($create_wrksrc) {
+	#} else if (^grep -q 'xmlns="http://pear[.]php[.]net/dtd/package' package.xml err> /dev/null) {
+	#	rm -f package.xml
+	#	for f in */ {
+	#		$innerdir = $f
+	#	}
+	#	$num_dirs = 1
+	#} else {
+	#	for f in ls {
+	#		if ($f | file exists) and ($"._($f)" | file exists) {
+	#			rm -f $"._($f)"
+	#			$num_dirs = 1
+	#			$innerdir = $f
+	#			break
+	#		}
+	#	}
+	#}
+
+	rm -rf $wrksrc
+	$innerdir = $"($extract_dir)/($innerdir.name)"
+	print $innerdir
+
+	#try {
+		if ($num_dirs == 1) and (($innerdir | path type) == dir) { #and (is-empty $create_wrksrc) {
+			mv $innerdir $wrksrc
+			rmdir $extract_dir
+		} else {
+			mv $extract_dir $wrksrc
+		}
+	#} catch {
+		#error make { msg: $'failed to move sources to ($wrksrc)' };
+	#	return
+	#}
 }

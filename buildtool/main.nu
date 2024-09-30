@@ -21,6 +21,9 @@ def main [
 		extract => {
 			"pre_extract do_extract post_extract"
 		},
+		configure => {
+			"pre_configure do_configure post_configure"
+		},
 		build => {
 			"pre_build do_build post_build"
 		},
@@ -31,7 +34,7 @@ def main [
 			"pre_package do_package post_package"
 		},
 		run => {
-			"pre_fetch do_fetch post_fetch pre_extract do_extract post_extract"
+			"pre_fetch do_fetch post_fetch pre_extract do_extract post_extract pre_configure do_configure post_configure pre_build do_build post_build"
 		},
 	}
 

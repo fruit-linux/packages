@@ -1,3 +1,5 @@
+use ../util.nu *
+
 def fix-file-ext [from_suffixes: list<string>, to_suffix: string] -> string {
 	let input: string = $in
 	for suffix in $from_suffixes {
@@ -18,15 +20,9 @@ export def fix-file-exts [] -> string {
 	
 
 export def fetch_distfile [distfile_url: string] {
-	let pkgname = get_state | get pkgname
-	let version = get_state | get version
-
 	let fname = ($distfile_url | split row '/') | last
 
-	let outpath = $fname | fix-file-exts
+	let outpath = gen-distfile-path ($fname | fix-file-exts)
 
-	mkdir ./work
-	cd ./work
-	
 	^wget -O $"($outpath)" $distfile_url
 }
