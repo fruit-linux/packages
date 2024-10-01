@@ -47,9 +47,15 @@ def main [operation: string, ...args] {
 					cd $"./src/(get_state pkgname)-(get_state version)/"
 					cargo configure
 				},
+				cmake => {
+					cd $"./src/(get_state pkgname)-(get_state version)/"
+					cmake configure
+				},
 			}
 		},
-		_ => {
+		pre_build | post_build => {
+		},
+		do_build => {
 			match (get_state build_style) {
 				gnu-configure => {
 					cd $"./src/(get_state pkgname)-(get_state version)/"
@@ -58,6 +64,19 @@ def main [operation: string, ...args] {
 				cargo => {
 					cd $"./src/(get_state pkgname)-(get_state version)/"
 					cargo build
+				},
+				cmake => {
+					cd $"./src/(get_state pkgname)-(get_state version)/"
+					cmake build
+				},
+			}
+		},
+		pre_install | post_install => {
+		},
+		do_install => {
+			match (get_state build_style) {
+				gnu-configure => {
+					//
 				},
 			}
 		},
