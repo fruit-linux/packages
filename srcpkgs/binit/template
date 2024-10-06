@@ -1,0 +1,14 @@
+# Template file for 'nushell'
+pkgname=binit
+version=0.1.0
+revision=1
+build_style=cargo
+short_desc="Based init system"
+maintainer="Lincoln <lincoln@waterga.me>"
+license="MIT"
+homepage="https://github.com/fruit-linux/binit"
+#changelog="https://github.com/"
+distfiles="https://github.com/fruit-linux/binit/archive/refs/tags/${version}.tar.gz"
+checksum=c77fd63c4a5f2d35f7dcbb3e9bd76dfaa23acc6bc21fb1de4e7a4a94dc458839
+# all tests fail with argument --target
+make_check=no

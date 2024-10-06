@@ -40,16 +40,16 @@ def main [operation: string, ...args] {
 		do_configure => {
 			match (get_state build_style) {
 				gnu-configure => {
-					cd $"./src/(get_state pkgname)-(get_state version)/"
 					gnu-configure configure
 				},
 				cargo => {
-					cd $"./src/(get_state pkgname)-(get_state version)/"
 					cargo configure
 				},
 				cmake => {
-					cd $"./src/(get_state pkgname)-(get_state version)/"
 					cmake configure
+				},
+				meson => {
+					meson configure
 				},
 			}
 		},
@@ -58,16 +58,16 @@ def main [operation: string, ...args] {
 		do_build => {
 			match (get_state build_style) {
 				gnu-configure => {
-					cd $"./src/(get_state pkgname)-(get_state version)/"
 					gnu-configure build
 				},
 				cargo => {
-					cd $"./src/(get_state pkgname)-(get_state version)/"
 					cargo build
 				},
 				cmake => {
-					cd $"./src/(get_state pkgname)-(get_state version)/"
 					cmake build
+				},
+				meson => {
+					meson build
 				},
 			}
 		},
@@ -75,8 +75,8 @@ def main [operation: string, ...args] {
 		},
 		do_install => {
 			match (get_state build_style) {
-				gnu-configure => {
-					//
+				cmake => {
+					cmake install
 				},
 			}
 		},

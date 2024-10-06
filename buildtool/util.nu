@@ -1,11 +1,24 @@
+export const BASE_BUILDTOOL_DIR = '/home/lncn/Code/xbps-packages/xbps-packages'
 # Base path for distfiles
-export const DISTFILES_DIR = '/home/lncn/Code/xbps-packages/xbps-packages/distfiles'
+export const DISTFILES_DIR = $"($BASE_BUILDTOOL_DIR)/distfiles"
 # Base path for src
-export const SRC_DIR = '/home/lncn/Code/xbps-packages/xbps-packages/src'
-export const BUILD_DIR = '/home/lncn/Code/xbps-packages/xbps-packages/build'
+export const SRC_DIR = $"($BASE_BUILDTOOL_DIR)/src"
+export const BUILD_DIR = $"($BASE_BUILDTOOL_DIR)/build"
+export const PKG_DIR = $"($BASE_BUILDTOOL_DIR)/pkg"
+export const STATE_DIR = $"($BASE_BUILDTOOL_DIR)/state"
+export const INSTALL_DIR = $"($BASE_BUILDTOOL_DIR)/install"
 
 export def gen-distfile-path [archive: string] -> string {
-		$"($DISTFILES_DIR)/(get_state pkgname)-(get_state version)/($archive)"
+	$"($DISTFILES_DIR)/(get_state pkgname)-(get_state version)/($archive)"
+}
+export def gen-src-path [] -> path {
+	$"($SRC_DIR)/(get_state pkgname)-(get_state version)"
+}
+export def gen-build-path [] -> path {
+	$"($BUILD_DIR)/(get_state pkgname)-(get_state version)"
+}
+export def gen-state-path [] -> path {
+	$"($STATE_DIR)/(get_state pkgname)-(get_state version)"
 }
 
 export def env-default [var: string, default: string] {
@@ -23,6 +36,11 @@ export def get_state [var: string] -> string? {
 	get_raw_state
 		| get -i $var
 		| default null
+}
+
+export def state-default [var: string, default: string] {
+	get_state $var
+		| default $default
 }
 
 export def setup_pkg [

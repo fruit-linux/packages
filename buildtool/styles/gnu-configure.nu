@@ -1,7 +1,10 @@
+use ../util.nu
+
 export def configure [] {
-	let configure_script = env-default configure_script './configure'
-	
-	let configure_args: list = env-default configure_args ''
+	let configure_script = state-default configure_script './configure'
+	let configure_args: list = state-default configure_args ''
+
+	cd (gen-src-path)
 
 	if $configure_args != [] {
 		^$configure_script $configure_args
@@ -18,6 +21,7 @@ export def build [] {
 	let make_build_args = ''
 	let make_build_target = ''
 	
+	cd (gen-src-path)
 	^$make_cmd $makejobs $make_build_args $make_build_target
 }
 

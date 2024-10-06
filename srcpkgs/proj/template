@@ -1,0 +1,18 @@
+# Template file for 'exiv2'
+pkgname=exiv2
+version=6.1.5
+revision=1
+build_style=cmake
+configure_args="-DBUILD_TESTING=OFF
+ -DKF6_HOST_TOOLING=/usr/lib/cmake
+ -DKDE_INSTALL_QMLDIR=lib/qt6/qml -DKDE_INSTALL_QTPLUGINDIR=lib/qt6/plugins"
+makedepends="inih-devel"
+depends=""
+short_desc="KDE Plasma Desktop"
+maintainer="Lincoln <lincoln@waterga.me>"
+license="GPL-2.0-or-later, LGPL-2.0-or-later, LGPL-2.1-or-later, GFDL-1.2-or-later"
+homepage="https://invent.kde.org/plasma/plasma-desktop"
+distfiles="${KDE_SITE}/plasma/${version}/${pkgname}-${version}.tar.xz"
+checksum=d9e236c9a9a332d8b7b4edde44c65d0b0ec38ea75adc5bbfa21a6c4c7f4261c2
+replaces="user-manager>=0"
+python_version=3

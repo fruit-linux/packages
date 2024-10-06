@@ -1,6 +1,8 @@
 #!/bin/bash
 
 source ./buildtool/__options.sh
+source ./buildtool/__sites.sh
+source ./buildtool/__deps.sh
 source "$(./buildtool/__hook.nu pkg_path "$1")"
 
 # If no operations were specified, load env vars

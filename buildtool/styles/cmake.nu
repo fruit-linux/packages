@@ -3,8 +3,7 @@ use ../util.nu *
 export def configure [] {
 	mut cmake_args = ''
 
-	let cmake_builddir = get_state cmake_builddir
-		| default 'build'
+	let cmake_builddir = state-default cmake_builddir (gen-build-path)
 	
 	#if !($cmake_builddir | file exists) {
 		mkdir $cmake_builddir
@@ -30,7 +29,7 @@ SET\(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 
 	$cmake_args += ' -DCMAKE_INSTALL_PREFIX:PATH=/usr'
 	$cmake_args += ' -DCMAKE_BUILD_TYPE=None'
-	$cmake_args += ' -DCMAKE_INSTALL_LIBDIR:PATH=lib${XBPS_TARGET_WORDSIZE}'
+	$cmake_args += ' -DCMAKE_INSTALL_LIBDIR:PATH=lib' # ${XBPS_TARGET_WORDSIZE}'
 	$cmake_args += ' -DCMAKE_INSTALL_SYSCONFDIR:PATH=/etc'
 
 	$cmake_args += ' -DCMAKE_INSTALL_SBINDIR:PATH=bin'
@@ -40,9 +39,9 @@ SET\(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 	# Remove -pipe: https://gitlab.kitware.com/cmake/cmake/issues/19590
 	$env.CFLAGS = $"-DNDEBUG ($env | get -i CFLAGS | default '' | str replace ' -pipe ' ' ')"
 	$env.CXXFLAGS = $"-DNDEBUG ($env | get -i CXXFLAGS | default '' | str replace ' -pipe ' ' ')"
-	(^cmake $cmake_args #($env | get -i configure_args | default '')
-		-DCMAKE_C_STANDARD_LIBRARIES=$LIBS
-		-DCMAKE_CXX_STANDARD_LIBRARIES=$LIBS
+	(^cmake -S (gen-src-path) -B (gen-build-path) $cmake_args #($env | get -i configure_args | default '')
+		#-DCMAKE_C_STANDARD_LIBRARIES=$LIBS
+		#-DCMAKE_CXX_STANDARD_LIBRARIES=$LIBS
 		$"../")
 
 	# Replace -isystem with -I
@@ -54,9 +53,9 @@ SET\(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 }
 
 export def build [] {
-	let make_cmd = (env-default make_cmd 'ninja')
+	let make_cmd = (state-default make_cmd 'ninja')
 
-	cd (get_state cmake_builddir | default 'build') #(env-default cmake_builddir 'build')
+	cd (state-default cmake_builddir (gen-build-path)) #(env-default cmake_builddir 'build')
 
 	mut args = []
 
@@ -69,4 +68,15 @@ export def build [] {
 	}
 
 	^$make_cmd ...$args
+}
+
+export def install [] {
+	let make_cmd = (state-default make_cmd 'ninja')
+	let make_install_target = (state-default make_install_target 'install')
+
+	cd (state-default cmake_builddir (gen-build-path)) #(env-default cmake_builddir 'build')
+	
+	$env.DESTDIR = (env-default DESTDIR $INSTALL_DIR)
+
+	^$make_cmd $make_install_target
 }

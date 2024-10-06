@@ -24,5 +24,14 @@ export def fetch_distfile [distfile_url: string] {
 
 	let outpath = gen-distfile-path ($fname | fix-file-exts)
 
-	^wget -O $"($outpath)" $distfile_url
+	let parent = ($outpath | str replace $"/($fname | fix-file-exts)" '')
+	rm -rf $parent
+	mkdir $parent
+
+	try {
+		^axel -c -o $"($outpath)" $distfile_url
+	} catch {
+		error make { msg: 'failed to fetch distfile' }
+		exit 1
+	}
 }
